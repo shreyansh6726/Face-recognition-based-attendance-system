@@ -1,0 +1,62 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f4f7;
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+.container {
+    max-width: 700px;
+    width: 100%;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+}
+
+h1, h2 {
+    text-align: center;
+    color: #333;
+}
+
+.video-area {
+    position: relative;
+    width: 480px;
+    margin: auto;
+}
+
+#video, #overlay {
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+button {
+    display: block;
+    width: 200px;
+    margin: 20px auto;
+    padding: 12px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #357ac8;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table th, table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}

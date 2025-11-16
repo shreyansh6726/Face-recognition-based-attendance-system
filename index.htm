@@ -1,365 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Face Recognition Attendance (Browser)</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0f1724; --card:#0b1220; --muted:#94a3b8; --accent:#60a5fa; --ok:#10b981;
-    --glass: rgba(255,255,255,0.03);
-    font-family: Inter, system-ui, sans-serif;
-  }
-  *{box-sizing:border-box}
-  body{margin:0; min-height:100vh; background:linear-gradient(180deg,#071029 0%, #07182a 100%); color:#e6eef8; padding:28px;}
-  .wrap{max-width:1100px;margin:0 auto;display:grid;gap:18px;grid-template-columns: 1fr 380px;}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:16px; box-shadow: 0 6px 18px rgba(2,6,23,0.6);}
-  header{grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px}
-  h1{font-size:18px;margin:0}
-  small{color:var(--muted)}
-  #videoWrap{display:flex;flex-direction:column;gap:10px}
-  video{border-radius:8px; width:100%; max-height:420px; background:#000; display:block}
-  .controls{display:flex;gap:8px;flex-wrap:wrap}
-  input[type=text]{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;min-width:160px}
-  button{background:var(--accent);border:0;padding:8px 10px;border-radius:8px;color:#062044;font-weight:600;cursor:pointer}
-  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--muted); font-weight:600}
-  .small{padding:6px 8px;font-size:13px}
-  #log{max-height:160px;overflow:auto;padding:8px;border-radius:8px;background:var(--glass);font-size:13px;color:var(--muted)}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:13px;color:#dbeafe}
-  .rightcol{display:flex;flex-direction:column;gap:12px}
-  .attendance-box{max-height:320px; overflow:auto}
-  .badge{display:inline-block;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03);font-weight:600;color:var(--muted);font-size:13px}
-  footer{grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;margin-top:6px}
-  @media (max-width:980px){ .wrap{grid-template-columns:1fr; padding:12px} .rightcol{order:2} }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Attendance</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- face-api.js CDN -->
+    <script defer src="https://unpkg.com/face-api.js"></script>
+    <script defer src="script.js"></script>
 </head>
+
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>📸 Face Recognition Attendance</h1>
-      <small>Browser-based — register faces, mark attendance, export CSV</small>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <span class="badge" id="modelStatus">Models: not loaded</span>
-      <span class="badge" id="cameraStatus">Camera: stopped</span>
-    </div>
-  </header>
+    <div class="container">
+        <h1>Face Recognition Attendance System</h1>
 
-  <!-- LEFT: video + controls -->
-  <div class="card" id="leftCard">
-    <div id="videoWrap">
-      <video id="video" autoplay muted playsinline></video>
-      <div class="controls">
-        <input id="nameInput" type="text" placeholder="Enter name to register (e.g. Riya)">
-        <button id="captureBtn" class="small">Register (capture samples)</button>
-        <button id="trainBtn" class="small ghost">Train / Refresh Encodings</button>
-        <button id="startBtn" class="small">Start Recognition</button>
-        <button id="stopBtn" class="small ghost">Stop</button>
-        <button id="clearKnown" class="small ghost">Clear Known Faces</button>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:8px;align-items:center">
-        <div id="log" aria-live="polite">Log: ready</div>
-      </div>
-    </div>
-  </div>
+        <div class="video-area">
+            <video id="video" width="480" height="360" autoplay></video>
+            <canvas id="overlay" width="480" height="360"></canvas>
+        </div>
 
-  <!-- RIGHT: attendance + known faces -->
-  <aside class="card rightcol">
-    <div>
-      <h3 style="margin:0 0 8px 0">Attendance</h3>
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <button id="exportCsv" class="small">Export CSV</button>
-        <button id="clearAttendance" class="small ghost">Clear Attendance</button>
-      </div>
-      <div class="attendance-box">
+        <button id="startBtn">Start Attendance</button>
+
+        <h2>Attendance Records</h2>
         <table id="attendanceTable">
-          <thead><tr><th>Name</th><th>Timestamp</th></tr></thead>
-          <tbody></tbody>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
         </table>
-      </div>
+
+        <button id="downloadBtn">Download CSV</button>
     </div>
-
-    <div>
-      <h3 style="margin:12px 0 8px 0">Known Faces</h3>
-      <div id="knownList" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-    </div>
-  </aside>
-
-  <footer>Tip: serve this folder with a local server and place face-api.js models in <code>./models/</code>.</footer>
-</div>
-
-<!-- face-api.js CDN (core) -->
-<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-
-<script>
-/*
-  Face Recognition Attendance (browser)
-  - Uses face-api.js (face detection + face descriptor)
-  - Stores known face descriptors in localStorage under "known_faces_v1"
-  - Stores attendance in localStorage under "attendance_v1"
-  - Train step = build labeled descriptors from stored samples
-  - Recognition uses euclidean distance with threshold
-*/
-
-// ---------- Config ----------
-const MODEL_PATH = './models'; // must contain face-api models (face_detection, face_landmark_68, face_recognition)
-const SAMPLE_COUNT = 5;       // number of samples to take when registering
-const CAPTURE_DELAY = 500;    // ms between captures
-const RECOGNITION_INTERVAL = 800; // ms between recognition attempts
-const MATCH_THRESHOLD = 0.55; // lower => stricter (0.4 very strict; 0.6 loose). 0.55 is ok for demo.
-
-// ---------- UI ----------
-const video = document.getElementById('video');
-const captureBtn = document.getElementById('captureBtn');
-const trainBtn = document.getElementById('trainBtn');
-const startBtn = document.getElementById('startBtn');
-const stopBtn = document.getElementById('stopBtn');
-const clearKnown = document.getElementById('clearKnown');
-const nameInput = document.getElementById('nameInput');
-const logEl = document.getElementById('log');
-const modelStatus = document.getElementById('modelStatus');
-const cameraStatus = document.getElementById('cameraStatus');
-const attendanceTable = document.querySelector('#attendanceTable tbody');
-const exportCsvBtn = document.getElementById('exportCsv');
-const clearAttendanceBtn = document.getElementById('clearAttendance');
-const knownList = document.getElementById('knownList');
-
-let stream = null;
-let recognitionLoop = null;
-let faceMatcher = null; // will be built after training
-
-// ---------- Storage helpers ----------
-const KNOWN_KEY = 'known_faces_v1';     // stores array of {name, descriptors: [Float32Array as Array]}
-const ATT_KEY = 'attendance_v1';        // stores array of {name, timestamp}
-
-function saveKnown(data){ localStorage.setItem(KNOWN_KEY, JSON.stringify(data)); }
-function loadKnown(){ try{ return JSON.parse(localStorage.getItem(KNOWN_KEY)||'[]'); }catch(e){return [];} }
-function saveAttendance(a){ localStorage.setItem(ATT_KEY, JSON.stringify(a)); }
-function loadAttendance(){ try{ return JSON.parse(localStorage.getItem(ATT_KEY)||'[]'); }catch(e){return [];} }
-
-// ---------- Logging ----------
-function log(msg){
-  const t = new Date().toLocaleTimeString();
-  logEl.innerText = `[${t}] ${msg}\n` + logEl.innerText;
-}
-
-// ---------- Model loading ----------
-async function loadModels(){
-  modelStatus.innerText = 'Models: loading...';
-  await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_PATH); // detection
-  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_PATH);
-  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_PATH);
-  modelStatus.innerText = 'Models: loaded';
-  log('Models loaded');
-}
-
-// ---------- Camera ----------
-async function startCamera(){
-  if (stream) return;
-  try{
-    stream = await navigator.mediaDevices.getUserMedia({video:{width:640, height:480}, audio:false});
-    video.srcObject = stream;
-    cameraStatus.innerText = 'Camera: running';
-    log('Camera started');
-    await video.play();
-  }catch(err){
-    cameraStatus.innerText = 'Camera: error';
-    log('Camera error: ' + err.message);
-  }
-}
-function stopCamera(){
-  if (stream){
-    stream.getTracks().forEach(t=>t.stop());
-    stream = null;
-    video.srcObject = null;
-    cameraStatus.innerText = 'Camera: stopped';
-    log('Camera stopped');
-  }
-}
-
-// ---------- Helpers for descriptors ----------
-async function detectFaceDescriptorFromVideo(){
-  if (!video || video.paused || video.ended) return null;
-  const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
-  return detection ? detection.descriptor : null;
-}
-
-// Convert stored arrays back to Float32Array and build LabeledDescriptors
-function buildFaceMatcherFromStorage(){
-  const known = loadKnown();
-  if (!known.length) { faceMatcher = null; log('No known faces to build matcher'); return; }
-  const labeled = known.map(item => {
-    const floats = item.descriptors.map(arr => new Float32Array(arr));
-    return new faceapi.LabeledFaceDescriptors(item.name, floats);
-  });
-  faceMatcher = new faceapi.FaceMatcher(labeled, MATCH_THRESHOLD);
-  log('Face matcher built with ' + labeled.length + ' labels');
-}
-
-// ---------- Registration: capture multiple descriptors ----------
-async function registerUser(){
-  const name = nameInput.value.trim();
-  if (!name){ alert('Enter a name to register'); return; }
-  captureBtn.disabled = true;
-  log(`Starting capture for "${name}" — looking for face...`);
-  let samples = [];
-  for (let i=0;i<SAMPLE_COUNT;i++){
-    // wait until a descriptor is available
-    let descriptor = null;
-    const start = Date.now();
-    while (!descriptor && Date.now()-start < 5000){ // try up to 5s per sample
-      descriptor = await detectFaceDescriptorFromVideo();
-      if (descriptor) break;
-      await new Promise(r=>setTimeout(r,200));
-    }
-    if (!descriptor){
-      log(`Sample ${i+1}: no face detected — skipping`);
-    } else {
-      samples.push(Array.from(descriptor)); // store as plain array for localStorage
-      log(`Sample ${i+1}: captured`);
-    }
-    await new Promise(r=>setTimeout(r, CAPTURE_DELAY));
-  }
-  captureBtn.disabled = false;
-  if (!samples.length){ log('No samples captured'); return; }
-
-  // store into known faces
-  const known = loadKnown();
-  // if same name exists, append descriptors
-  const existing = known.find(k=>k.name === name);
-  if (existing) existing.descriptors = existing.descriptors.concat(samples);
-  else known.push({name, descriptors: samples});
-  saveKnown(known);
-  log(`Saved ${samples.length} sample(s) for ${name}`);
-  refreshKnownList();
-  buildFaceMatcherFromStorage();
-}
-
-// ---------- Training (refresh matcher) ----------
-function trainRecognizer(){
-  buildFaceMatcherFromStorage();
-  log('Train requested (matcher refreshed)');
-}
-
-// ---------- Recognition loop ----------
-async function startRecognition(){
-  if (!faceMatcher){ log('No trained data. Please register users and click Train.'); return; }
-  if (recognitionLoop) return;
-  log('Recognition started');
-  startBtn.disabled = true; stopBtn.disabled = false;
-  recognitionLoop = setInterval(async ()=>{
-    const descriptor = await detectFaceDescriptorFromVideo();
-    if (!descriptor) return;
-    const best = faceMatcher.findBestMatch(descriptor);
-    if (best && best.label !== 'unknown'){
-      // mark attendance (only once per session per name — but for demo we'll insert duplicates allowed)
-      markAttendance(best.label);
-      log(`Recognized: ${best.label} (dist ${best.distance.toFixed(3)})`);
-      // optionally blink or show UI - not required
-    } else {
-      // unknown
-      // log('Unknown face');
-    }
-  }, RECOGNITION_INTERVAL);
-}
-
-function stopRecognition(){
-  if (recognitionLoop){ clearInterval(recognitionLoop); recognitionLoop = null; startBtn.disabled=false; stopBtn.disabled=true; log('Recognition stopped'); }
-}
-
-// ---------- Attendance functions ----------
-function markAttendance(name){
-  const arr = loadAttendance();
-  const ts = new Date().toLocaleString();
-  // avoid duplicates within session (optional): check last entry for same name
-  if (arr.length > 0 && arr[arr.length-1].name === name) return;
-  arr.push({name, timestamp: ts});
-  saveAttendance(arr);
-  renderAttendance();
-}
-
-function renderAttendance(){
-  const arr = loadAttendance();
-  attendanceTable.innerHTML = '';
-  for (const r of arr.slice().reverse()){ // show latest first
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.timestamp)}</td>`;
-    attendanceTable.appendChild(tr);
-  }
-}
-
-function exportCSV(){
-  const arr = loadAttendance();
-  if (!arr.length){ alert('No attendance to export'); return; }
-  const rows = [['Name','Timestamp'], ...arr.map(a=>[a.name, a.timestamp])];
-  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\\n');
-  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'attendance.csv'; document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-}
-
-// ---------- Known list rendering ----------
-function refreshKnownList(){
-  const known = loadKnown();
-  knownList.innerHTML = '';
-  known.forEach(k=>{
-    const el = document.createElement('div');
-    el.style.padding='6px 8px';
-    el.style.borderRadius='8px';
-    el.style.background='rgba(255,255,255,0.02)';
-    el.style.fontSize='13px';
-    el.style.color='#cfe8ff';
-    el.textContent = `${k.name} (${k.descriptors.length})`;
-    knownList.appendChild(el);
-  });
-}
-
-// ---------- Utility ----------
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]); }
-
-// ---------- Init & events ----------
-window.addEventListener('load', async ()=>{
-  log('App starting — loading models...');
-  await loadModels();
-  refreshKnownList();
-  renderAttendance();
-  buildFaceMatcherFromStorage();
-
-  // auto-start camera (optional)
-  await startCamera();
-});
-
-captureBtn.addEventListener('click', async ()=> {
-  if (!stream){ await startCamera(); }
-  await registerUser();
-});
-
-trainBtn.addEventListener('click', trainRecognizer);
-startBtn.addEventListener('click', startRecognition);
-stopBtn.addEventListener('click', stopRecognition);
-clearKnown.addEventListener('click', ()=> {
-  if (!confirm('Clear all known faces?')) return;
-  localStorage.removeItem(KNOWN_KEY);
-  buildFaceMatcherFromStorage();
-  refreshKnownList();
-  log('Cleared known faces storage');
-});
-exportCsvBtn.addEventListener('click', exportCSV);
-clearAttendanceBtn.addEventListener('click', ()=>{
-  if (!confirm('Clear attendance records?')) return;
-  localStorage.removeItem(ATT_KEY);
-  renderAttendance();
-  log('Cleared attendance');
-});
-
-// update UI states
-stopBtn.disabled = true;
-trainBtn.addEventListener('click', ()=>{ trainBtn.disabled = false; });
-</script>
 </body>
 </html>
