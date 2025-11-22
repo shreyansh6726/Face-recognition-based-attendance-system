@@ -1,6 +1,8 @@
 // client/src/index.js (Partial Update)
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+// Ensure this line is present and correct!
+import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';

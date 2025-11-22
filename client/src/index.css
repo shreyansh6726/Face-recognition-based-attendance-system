@@ -1,13 +1,344 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* client/src/index.css */
+
+/* --- 1. Global Reset and Variables --- */
+:root {
+    --primary-color: #4a90e2; /* Deep Blue */
+    --secondary-color: #50e3c2; /* Mint Green/Teal */
+    --text-color: #333;
+    --background-color: #f4f7f6;
+    --card-background: #fff;
+    --border-color: #ddd;
+    --success-color: #4CAF50;
+    --error-color: #f44336;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+#root {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* --- 2. Typography and Headings --- */
+h1, h2, h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+/* --- 3. Forms and Inputs --- */
+input[type="text"], 
+input[type="password"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.1s;
+}
+button:hover:not(:disabled) {
+    background-color: #3a7bd5;
+    transform: translateY(-1px);
+}
+button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.logout-button {
+    background-color: var(--error-color);
+}
+.logout-button:hover:not(:disabled) {
+    background-color: #d32f2f;
+}
+
+.error-message {
+    color: var(--error-color);
+    background-color: #ffebee;
+    border: 1px solid var(--error-color);
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+.success-message {
+    color: var(--success-color);
+    background-color: #e8f5e9;
+    border: 1px solid var(--success-color);
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+/* --- 4. Card Styling --- */
+.metric-card, .result-card, .profile-details-card, .enroll-form-card, .camera-capture-card {
+    background: var(--card-background);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* ---------------------------------------------------------------------------------- */
+/* --- SPECIFIC PAGE STYLES --- */
+/* ---------------------------------------------------------------------------------- */
+
+/* --- Login Page --- */
+.login-container {
+    max-width: 400px;
+    width: 100%;
+    margin-top: 100px; /* Center it vertically */
+    text-align: center;
+}
+.login-container form {
+    text-align: left;
+}
+
+/* --- Dashboard Page --- */
+.dashboard-page {
+    width: 100%;
+    max-width: 1200px;
+}
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 30px;
+}
+.summary-metrics {
+    margin-bottom: 40px;
+}
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+.metric-card h3 {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 5px;
+}
+.metric-card p {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.action-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.action-link {
+    display: block;
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.action-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+.portal-link { background-color: #e3f2fd; border-left: 5px solid var(--primary-color); }
+.enroll-link { background-color: #e8f5e9; border-left: 5px solid var(--success-color); }
+.manage-link { background-color: #fff3e0; border-left: 5px solid orange; }
+.report-link { background-color: #fce4ec; border-left: 5px solid #d81b60; }
+
+
+/* --- Enrollment/Camera Page --- */
+.enrollment-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 30px auto;
+}
+.camera-capture-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.video-container {
+    width: 100%;
+    max-width: 400px;
+    border: 3px solid var(--primary-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+.video-container video {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.camera-status {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+
+/* --- Attendance Portal Page --- */
+.attendance-portal-container {
+    width: 100%;
+    max-width: 1000px;
+}
+.attendance-area {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+.camera-feed-box {
+    position: relative;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.camera-feed-box video {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.attendance-status-box {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.result-card {
+    text-align: center;
+    padding: 30px 20px;
+    border-radius: 12px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.result-card.success {
+    background-color: var(--success-color);
+    color: white;
+}
+.result-card.failure {
+    background-color: var(--error-color);
+    color: white;
+}
+.result-card.pending {
+    background-color: #ccc;
+}
+.result-card h2 {
+    color: inherit;
+    font-size: 2em;
+}
+.result-card h3 {
+    color: inherit;
+    margin-bottom: 10px;
+}
+.time-display {
+    font-size: 3em;
+    font-weight: 700;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+
+/* --- Candidate Profile Page --- */
+.candidate-profile-page {
+    width: 100%;
+    max-width: 900px;
+}
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+.attendance-history table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: var(--card-background);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.attendance-history th, .attendance-history td {
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    text-align: left;
+}
+.attendance-history th {
+    background-color: var(--primary-color);
+    color: white;
+}
+.attendance-history tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+
+/* --- Media Queries for Responsiveness --- */
+@media (max-width: 768px) {
+    .enrollment-form-grid, .attendance-area {
+        grid-template-columns: 1fr;
+    }
+    .attendance-area {
+        /* Reverse order on mobile for better flow */
+        grid-template-areas: "status" "camera";
+    }
+    .attendance-status-box {
+        grid-area: status;
+    }
+    .camera-feed-box {
+        grid-area: camera;
+    }
+    .metrics-grid, .action-links-grid {
+        grid-template-columns: 1fr;
+    }
 }

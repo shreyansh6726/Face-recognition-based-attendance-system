@@ -6,7 +6,6 @@ import { loadModels, getFaceEncoding } from '../utils/faceRecognition';
 import { useAuth } from '../context/AuthContext';
 
 const API_URL = 'http://localhost:5000/api/attendance/mark';
-
 // Define the interval (in milliseconds) for scanning faces (e.g., scan every 1 second)
 const SCAN_INTERVAL = 1000; 
 
