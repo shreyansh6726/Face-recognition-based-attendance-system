@@ -97,8 +97,8 @@ async function setupStudentLogin() {
             );
 
             if (user) {
-                // Store student ID to personalize the dashboard
-                localStorage.setItem('currentStudentId', collegeIdInput); 
+                // Store the entire user object (including name)
+                localStorage.setItem('currentUser', JSON.stringify(user)); 
 
                 loginMessage.textContent = `Login successful! Redirecting...`;
                 loginMessage.classList.add('success');
@@ -165,8 +165,18 @@ async function setupTeacherLogin() {
 }
 
 
-// --- STUDENT DASHBOARD SETUP (FIXED CHART INITIALIZATION) ---
+// --- STUDENT DASHBOARD SETUP ---
 function setupDashboard() {
+    // Retrieve logged-in student's info
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const studentName = currentUser.name || 'Student';
+    
+    // Update header with the student's name
+    const nameDisplayEl = document.getElementById('student-name-display');
+    if (nameDisplayEl) {
+        nameDisplayEl.textContent = studentName; 
+    }
+
     // 1. Attendance Data and Graph Setup
     const attendanceData = {
         classes: ['Physics', 'Math', 'History', 'English'],
@@ -181,18 +191,13 @@ function setupDashboard() {
     );
 
     const overallPercentage = ((attendanceData.overallAttended / attendanceData.overallTotal) * 100).toFixed(1);
-    const studentId = localStorage.getItem('currentStudentId') || 'S1001';
     
-    // Update display elements
-    const welcomeHeader = document.querySelector('.dashboard-header h1');
-    welcomeHeader.textContent = `Welcome, ${studentId}!`; // Use ID since we didn't store full name
-
     const percentValueEl = document.getElementById('attendance-percent-value');
     if (percentValueEl) {
         percentValueEl.textContent = `${overallPercentage}%`;
     }
 
-    // FIX HERE: Ensure Canvas is retrieved correctly
+    // Chart Initialization
     const ctx = document.getElementById('attendanceBarChart');
     if (ctx) {
         new Chart(ctx.getContext('2d'), {
@@ -210,7 +215,7 @@ function setupDashboard() {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Allows the CSS height to take effect
+                maintainAspectRatio: false, 
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -240,13 +245,12 @@ function setupDashboard() {
         });
     }
 
-    // 2. Camera and Attendance Logic Setup
+    // 2. Camera and Attendance Logic Setup (Reused)
     const video = document.getElementById('webcam-video');
     const timeDisplay = document.getElementById('current-time-display');
     const markBtn = document.getElementById('mark-attendance-btn');
     const message = document.getElementById('attendance-message');
 
-    // Start Webcam Feed
     if (video) {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ video: true })
@@ -267,14 +271,12 @@ function setupDashboard() {
             if (markBtn) markBtn.disabled = true;
         }
 
-        // Update time display every second
         setInterval(() => {
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-US', { hour12: false });
             if (timeDisplay) timeDisplay.textContent = `Current Time: ${timeString}`;
         }, 1000);
 
-        // Mark Attendance Handler
         if (markBtn) {
              markBtn.addEventListener('click', () => {
                 markAttendance(video, message, markBtn);
@@ -290,7 +292,6 @@ function markAttendance(videoElement, messageElement, markBtn) {
     const now = new Date();
     const attendanceTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     
-    // Capture the frame
     const canvas = document.getElementById('snapshot-canvas');
     if (canvas && videoElement.videoWidth > 0) {
          const context = canvas.getContext('2d');
@@ -322,16 +323,8 @@ function markAttendance(videoElement, messageElement, markBtn) {
 }
 
 
-// --- TEACHER DASHBOARD SETUP ---
-const TEACHER_STUDENT_DATA = [
-    { id: 'S1001', name: 'Alice Johnson', attended: 14, total: 15 },
-    { id: 'S1002', name: 'Bob Smith', attended: 10, total: 15 },
-    { id: 'S1003', name: 'Charlie Brown', attended: 15, total: 15 },
-    { id: 'S1004', name: 'Diana Prince', attended: 12, total: 15 },
-    { id: 'S1005', name: 'Ethan Hunt', attended: 8, total: 15 },
-];
-
-function setupTeacherDashboard() {
+// --- TEACHER DASHBOARD SETUP (UPDATED TO USE students.csv) ---
+async function setupTeacherDashboard() {
     const tableBody = document.querySelector('#attendance-table tbody');
     const teacherNameEl = document.getElementById('teacher-name');
     const courseNameEl = document.getElementById('course-name');
@@ -344,14 +337,43 @@ function setupTeacherDashboard() {
     teacherNameEl.textContent = currentUser.name || 'Faculty';
     courseNameEl.textContent = currentUser.course || 'Unknown Course';
 
-    // Populate Table and calculate totals
-    let totalAttended = 0;
-    let totalClasses = 0;
+    let studentRoster = [];
+    
+    // 1. Fetch Students.csv
+    try {
+        const response = await fetch('students.csv');
+        if (!response.ok) throw new Error(`Failed to load students.csv: ${response.statusText}`);
+        const csvText = await response.text();
+        
+        // 2. Augment data with simulated attendance (since CSV only has ID, Name, Pwd)
+        const totalClassesHeld = 15;
+        studentRoster = parseCSV(csvText).map(student => {
+            const attendedCount = Math.floor(Math.random() * totalClassesHeld) + 5; // Attendance between 5 and 15
+            return {
+                id: student['college-id'],
+                name: student.name,
+                attended: attendedCount,
+                total: totalClassesHeld
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching or parsing students.csv for dashboard:", error);
+        // Display an error message on the dashboard if possible
+        const errorCard = document.querySelector('.student-list-card');
+        if(errorCard) {
+            errorCard.innerHTML = `<h2 style="color:red;">Error: Could not load student roster.</h2><p>Check console for details.</p>`;
+        }
+        return; 
+    }
 
-    TEACHER_STUDENT_DATA.forEach(student => {
+    // 3. Populate Table and calculate totals
+    let totalAttended = 0;
+    let totalClassesSum = 0;
+
+    studentRoster.forEach(student => {
         const percentage = ((student.attended / student.total) * 100).toFixed(1);
         totalAttended += student.attended;
-        totalClasses += student.total;
+        totalClassesSum += student.total;
         
         const row = tableBody.insertRow();
         row.innerHTML = `
@@ -364,9 +386,9 @@ function setupTeacherDashboard() {
         `;
     });
     
-    // Calculate and set Summary Stats
-    const totalStudents = TEACHER_STUDENT_DATA.length;
-    const avgAttendance = totalClasses > 0 ? ((totalAttended / totalClasses) * 100).toFixed(1) : 0;
+    // 4. Calculate and set Summary Stats
+    const totalStudents = studentRoster.length;
+    const avgAttendance = totalClassesSum > 0 ? ((totalAttended / totalClassesSum) * 100).toFixed(1) : 0;
 
     totalStudentsEl.textContent = totalStudents;
     avgAttendanceEl.textContent = avgAttendance;
