@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | FaceAttend</title>
+    <link rel="icon" type="image/png" href="logo.png" />
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script> 
+</head>
+<body class="dashboard-body">
+
+    <header class="dashboard-header">
+        <h1>Welcome, Student Name!</h1>
+        <a href="index.html" class="logout-link">Logout</a>
+    </header>
+
+    <div class="dashboard-container">
+
+        <div class="card attendance-summary">
+            <h2>📊 Your Overall Attendance</h2>
+            <div class="percentage-display">
+                <span id="attendance-percent-value" class="highlight-value">--%</span>
+                <p>Total Classes Attended / Total Classes Held</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="attendanceBarChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card attendance-marker">
+            <h2>🤳 Mark Your Attendance</h2>
+            
+            <p id="attendance-message" class="status-message">Ready to mark attendance for the current slot.</p>
+
+            <div class="video-container">
+                <video id="webcam-video" width="100%" height="auto" autoplay playsinline></video>
+                <canvas id="snapshot-canvas" style="display: none;"></canvas>
+                <div class="video-overlay">
+                    <p id="current-time-display">Current Time: --:--:--</p>
+                </div>
+            </div>
+            
+            <button id="mark-attendance-btn" class="cta-button">Mark Attendance</button>
+            <p class="last-marked">Last Attendance Marked At: <span id="last-marked-time">N/A</span></p>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

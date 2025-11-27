@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard | FaceAttend</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png" />
+</head>
+<body class="dashboard-body teacher-dashboard">
+
+    <header class="dashboard-header">
+        <h1>Welcome, <span id="teacher-name">Faculty</span>!</h1>
+        <a href="index.html" class="logout-link">Logout</a>
+    </header>
+
+    <div class="dashboard-container">
+
+        <div class="card management-overview">
+            <h2>📈 Course Attendance Summary</h2>
+            <p>You are managing attendance for: <strong id="course-name">--</strong></p>
+            
+            <div class="summary-stats">
+                <div>Total Students: <span id="total-students" class="highlight-value-small">--</span></div>
+                <div>Avg. Attendance: <span id="avg-attendance" class="highlight-value-small">--%</span></div>
+            </div>
+            
+            <button class="cta-button primary-btn" id="export-btn">Export Attendance Report (.csv)</button>
+        </div>
+
+        <div class="card student-list-card">
+            <h2>📚 Student Attendance Details</h2>
+            
+            <div class="table-scroll">
+                <table id="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Attended</th>
+                            <th>Total Classes</th>
+                            <th>Percentage</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

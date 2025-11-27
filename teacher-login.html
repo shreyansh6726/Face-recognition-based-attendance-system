@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Login | FaceAttend</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png" />
+</head>
+<body class="login-body">
+
+    <div class="modal-overlay active" id="login-modal-overlay"> 
+        <div class="modal-content teacher-login-content">
+            <h2>Teacher / Faculty Login</h2>
+            <p>Enter your College ID and Password to manage attendance.</p>
+            
+            <form id="teacher-login-form">
+                <div class="form-group">
+                    <label for="college-id">College ID</label>
+                    <input type="text" id="college-id" name="college-id" required placeholder="e.g., T5001">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="******">
+                </div>
+                
+                <button type="submit" class="cta-button login-btn">Login</button>
+            </form>
+
+            <p id="login-message" class="status-message"></p>
+
+            <a href="index.html" class="back-link">&larr; Back to Role Selection</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
