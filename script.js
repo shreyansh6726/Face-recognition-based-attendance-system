@@ -27,6 +27,7 @@ function parseCSV(csvText) {
         if (values.length === headers.length) {
             const entry = {};
             headers.forEach((header, index) => {
+                // IMPORTANT: Normalize header keys for consistent access (e.g., 'college ID' -> 'college-id')
                 entry[header.toLowerCase().replace(/\s/g, '-')] = values[index].trim();
             });
             data.push(entry);
@@ -69,7 +70,7 @@ function setupLandingPage() {
 }
 
 
-// --- STUDENT LOGIN SETUP ---
+// --- STUDENT LOGIN SETUP (Credential Fix Applied) ---
 let studentCredentials = [];
 
 async function setupStudentLogin() {
@@ -92,12 +93,12 @@ async function setupStudentLogin() {
             const collegeIdInput = document.getElementById('college-id').value.trim();
             const passwordInput = document.getElementById('password').value.trim();
 
+            // *** FIX: Use normalized keys 'college-id' and 'password' ***
             const user = studentCredentials.find(
                 c => c['college-id'] === collegeIdInput && c['password'] === passwordInput
             );
 
             if (user) {
-                // Store the entire user object (including name)
                 localStorage.setItem('currentUser', JSON.stringify(user)); 
 
                 loginMessage.textContent = `Login successful! Redirecting...`;
@@ -116,7 +117,7 @@ async function setupStudentLogin() {
 }
 
 
-// --- TEACHER LOGIN SETUP ---
+// --- TEACHER LOGIN SETUP (Credential Fix Applied) ---
 let teacherCredentials = [];
 
 async function setupTeacherLogin() {
@@ -140,6 +141,7 @@ async function setupTeacherLogin() {
             const collegeIdInput = document.getElementById('college-id').value.trim();
             const passwordInput = document.getElementById('password').value.trim();
 
+            // *** FIX: Use normalized keys 'college-id' and 'password' ***
             const user = teacherCredentials.find(
                 c => c['college-id'] === collegeIdInput && c['password'] === passwordInput
             );
@@ -167,11 +169,9 @@ async function setupTeacherLogin() {
 
 // --- STUDENT DASHBOARD SETUP ---
 function setupDashboard() {
-    // Retrieve logged-in student's info
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const studentName = currentUser.name || 'Student';
     
-    // Update header with the student's name
     const nameDisplayEl = document.getElementById('student-name-display');
     if (nameDisplayEl) {
         nameDisplayEl.textContent = studentName; 
@@ -323,7 +323,7 @@ function markAttendance(videoElement, messageElement, markBtn) {
 }
 
 
-// --- TEACHER DASHBOARD SETUP (UPDATED TO USE students.csv) ---
+// --- TEACHER DASHBOARD SETUP (Student Name Fix Verified) ---
 async function setupTeacherDashboard() {
     const tableBody = document.querySelector('#attendance-table tbody');
     const teacherNameEl = document.getElementById('teacher-name');
@@ -345,20 +345,19 @@ async function setupTeacherDashboard() {
         if (!response.ok) throw new Error(`Failed to load students.csv: ${response.statusText}`);
         const csvText = await response.text();
         
-        // 2. Augment data with simulated attendance (since CSV only has ID, Name, Pwd)
+        // 2. Augment data with simulated attendance
         const totalClassesHeld = 15;
         studentRoster = parseCSV(csvText).map(student => {
-            const attendedCount = Math.floor(Math.random() * totalClassesHeld) + 5; // Attendance between 5 and 15
+            const attendedCount = Math.floor(Math.random() * 11) + 5; // Attendance between 5 and 15
             return {
                 id: student['college-id'],
-                name: student.name,
+                name: student.name, // Accessing the 'name' attribute from the CSV data
                 attended: attendedCount,
                 total: totalClassesHeld
             };
         });
     } catch (error) {
         console.error("Error fetching or parsing students.csv for dashboard:", error);
-        // Display an error message on the dashboard if possible
         const errorCard = document.querySelector('.student-list-card');
         if(errorCard) {
             errorCard.innerHTML = `<h2 style="color:red;">Error: Could not load student roster.</h2><p>Check console for details.</p>`;
@@ -370,6 +369,9 @@ async function setupTeacherDashboard() {
     let totalAttended = 0;
     let totalClassesSum = 0;
 
+    // Clear existing table contents before populating
+    if (tableBody) tableBody.innerHTML = ''; 
+
     studentRoster.forEach(student => {
         const percentage = ((student.attended / student.total) * 100).toFixed(1);
         totalAttended += student.attended;
@@ -378,7 +380,7 @@ async function setupTeacherDashboard() {
         const row = tableBody.insertRow();
         row.innerHTML = `
             <td>${student.id}</td>
-            <td>${student.name}</td>
+            <td>${student.name}</td> 
             <td>${student.attended}</td>
             <td>${student.total}</td>
             <td><strong>${percentage}%</strong></td>
