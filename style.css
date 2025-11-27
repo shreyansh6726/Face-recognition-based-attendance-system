@@ -21,7 +21,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow: hidden; /* Hide potential scrollbar from animations */
+    overflow-x: hidden; 
 }
 
 /* Landing Container */
@@ -41,13 +41,12 @@ body {
 /* Individual Character Animation Setup */
 .animated-char {
     display: inline-block;
-    opacity: 0; /* Start hidden */
-    transform: translateY(20px); /* Start slightly below */
+    opacity: 0; 
+    transform: translateY(20px); 
     animation: fadeInSlideUp 1s forwards;
 }
 
 /* Staggered Animation Timing */
-/* Apply a delay to each character to create the staggered effect */
 .animated-char:nth-child(1) { animation-delay: 0.1s; }
 .animated-char:nth-child(2) { animation-delay: 0.2s; }
 .animated-char:nth-child(3) { animation-delay: 0.3s; }
@@ -57,12 +56,7 @@ body {
 .animated-char:nth-child(7) { animation-delay: 0.7s; }
 .animated-char:nth-child(8) { animation-delay: 0.8s; }
 .animated-char:nth-child(9) { animation-delay: 0.9s; }
-.animated-char:nth-child(10) { animation-delay: 1.1s; }
-.animated-char:nth-child(11) { animation-delay: 1.2s; }
-.animated-char:nth-child(12) { animation-delay: 1.3s; }
-.animated-char:nth-child(13) { animation-delay: 1.4s; }
-.animated-char:nth-child(14) { animation-delay: 1.5s; }
-.animated-char:nth-child(15) { animation-delay: 1.6s; }
+.animated-char:nth-child(10) { animation-delay: 1.0s; }
 
 /* Keyframe Animation */
 @keyframes fadeInSlideUp {
@@ -76,9 +70,9 @@ body {
 .tagline {
     font-size: 1.2em;
     margin-bottom: 2em;
-    opacity: 0; /* Start hidden */
+    opacity: 0; 
     animation: fadeIn 1s forwards;
-    animation-delay: 1.5s; /* Appear after the title animation */
+    animation-delay: 1.5s; 
 }
 
 @keyframes fadeIn {
@@ -97,9 +91,6 @@ body {
     border-radius: 5px;
     transition: background-color 0.3s, transform 0.2s;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    opacity: 0;
-    animation: fadeIn 1s forwards;
-    animation-delay: 1.8s; /* Appear after the tagline */
 }
 
 .cta-button:hover {
@@ -108,34 +99,30 @@ body {
 }
 
 /* --- Modal/Dialogue Box Styles --- */
-
-/* Full screen overlay, initially hidden */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+    background-color: rgba(0, 0, 0, 0.7); 
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    opacity: 0; /* Start transparent */
-    visibility: hidden; /* Start invisible */
+    opacity: 0; 
+    visibility: hidden; 
     transition: opacity 0.3s, visibility 0.3s;
 }
 
-/* Show the modal */
 .modal-overlay.active {
     opacity: 1;
     visibility: visible;
 }
 
-/* Content box of the modal */
 .modal-content {
-    background-color: var(--second-color); /* Medium Blue/Grey background */
-    color: var(--fourth-color); /* Light text */
+    background-color: var(--second-color); 
+    color: var(--fourth-color); 
     padding: 40px;
     border-radius: 8px;
     text-align: center;
@@ -143,17 +130,17 @@ body {
     max-width: 450px;
     position: relative;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    transform: scale(0.9); /* Start slightly small for transition */
+    transform: scale(0.9); 
     transition: transform 0.3s;
 }
 
 .modal-overlay.active .modal-content {
-    transform: scale(1); /* Scale up when active */
+    transform: scale(1); 
 }
 
 .modal-content h2 {
     margin-bottom: 15px;
-    color: var(--third-color); /* Accent color for heading */
+    color: var(--third-color); 
 }
 
 .modal-content p {
@@ -170,7 +157,7 @@ body {
 .role-button {
     flex: 1;
     padding: 15px 10px;
-    background-color: var(--first-color); /* Darker button base */
+    background-color: var(--first-color); 
     color: var(--fourth-color);
     border: 2px solid var(--fourth-color);
     border-radius: 5px;
@@ -181,9 +168,9 @@ body {
 }
 
 .role-button:hover {
-    background-color: var(--third-color); /* Red on hover */
+    background-color: var(--third-color); 
     border-color: var(--third-color);
-    color: var(--first-color); /* Dark text on red background */
+    color: var(--first-color); 
     transform: translateY(-2px);
 }
 
@@ -202,7 +189,70 @@ body {
 .close-modal:hover {
     color: var(--third-color);
 }
-/* --- Dashboard Page Styles (Append to style.css) --- */
+
+/* --- Login Form Styles --- */
+
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.student-login-content, .teacher-login-content {
+    padding: 30px;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--fourth-color);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--first-color);
+    border-radius: 4px;
+    background-color: var(--first-color); 
+    color: var(--fourth-color);
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--third-color); 
+}
+
+.login-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.back-link {
+    display: block;
+    margin-top: 25px;
+    color: var(--fourth-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--third-color);
+}
+
+#login-message {
+    margin-top: 15px;
+}
+
+/* --- Dashboard Page Styles --- */
 
 .dashboard-body {
     display: block;
@@ -264,14 +314,22 @@ body {
     padding-bottom: 10px;
 }
 
-/* Attendance Summary Styles (Left Card) */
+/* Attendance Summary Styles (Left Card - where the graph is) */
 .attendance-summary {
     max-width: 500px;
+    min-width: 350px; /* Ensure space on smaller screens */
+}
+
+/* FIX: Ensure the chart container has a defined height/aspect ratio */
+.chart-container {
+    height: 300px; /* Define a fixed height for the graph */
+    position: relative;
+    margin-top: 20px;
 }
 
 .percentage-display {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
 }
 
 .highlight-value {
@@ -292,7 +350,7 @@ body {
 .video-container {
     width: 100%;
     max-width: 400px;
-    aspect-ratio: 4/3; /* Standard camera ratio */
+    aspect-ratio: 4/3; 
     background-color: var(--first-color);
     border: 4px solid var(--fourth-color);
     border-radius: 6px;
@@ -320,7 +378,6 @@ body {
 }
 
 #mark-attendance-btn {
-    /* Uses the existing .cta-button style, but we override margin */
     margin-bottom: 15px;
 }
 
@@ -335,80 +392,17 @@ body {
 }
 
 .status-message.success {
-    color: #4CAF50; /* Green for success */
+    color: #4CAF50; 
     font-weight: bold;
 }
 .status-message.error {
-    color: var(--third-color); /* Red for error */
+    color: var(--third-color); 
     font-weight: bold;
 }
-/* --- Login Form Styles (Append to style.css) --- */
 
-.login-body {
-    /* Ensures the body centers the content like the landing page */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-/* Reusing the modal-content style for the login box */
-.student-login-content {
-    padding: 30px;
-}
-
-.form-group {
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: var(--fourth-color);
-}
-
-.form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--first-color);
-    border-radius: 4px;
-    background-color: var(--first-color); /* Dark input field */
-    color: var(--fourth-color);
-    font-size: 1em;
-    transition: border-color 0.3s;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: var(--third-color); /* Highlight on focus */
-}
-
-.login-btn {
-    width: 100%;
-    margin-top: 10px;
-}
-
-.back-link {
-    display: block;
-    margin-top: 25px;
-    color: var(--fourth-color);
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.back-link:hover {
-    color: var(--third-color);
-}
-
-#login-message {
-    margin-top: 15px;
-}
-/* --- Teacher Dashboard Styles (Append to style.css) --- */
+/* --- Teacher Dashboard Styles --- */
 
 .teacher-dashboard .dashboard-container {
-    /* Stack cards vertically for teacher dashboard */
     flex-direction: column; 
 }
 
@@ -429,15 +423,15 @@ body {
 .highlight-value-small {
     font-size: 1.5em;
     font-weight: bold;
-    color: var(--third-color); /* Highlight color */
+    color: var(--third-color); 
 }
 
 .student-list-card {
-    padding: 10px;
+    padding: 10px; 
 }
 
 .table-scroll {
-    max-height: 500px; /* Limits the height for long lists */
+    max-height: 500px;
     overflow-y: auto;
     padding: 0 20px 20px 20px;
 }
@@ -458,13 +452,13 @@ body {
 #attendance-table th {
     background-color: var(--first-color);
     color: var(--third-color);
-    position: sticky; /* Keep header visible on scroll */
+    position: sticky; 
     top: 0;
     z-index: 10;
 }
 
 #attendance-table tr:hover {
-    background-color: #314256; /* Subtle hover effect */
+    background-color: #314256; 
 }
 
 .action-button {
