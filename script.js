@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Determine Current Page and Run Relevant Setup ---
     
+    // Check if we are on the new student-details page
+    if (document.body.querySelector('#details-table')) {
+        // We use the direct call in student-details.html to ensure it runs
+        // setupStudentDetailsPage(); // This is called via inline script in HTML
+        return; 
+    }
+    
     if (document.body.classList.contains('teacher-dashboard')) {
         setupTeacherDashboard();
     } else if (document.body.classList.contains('dashboard-body')) {
@@ -93,7 +100,6 @@ async function setupStudentLogin() {
             const collegeIdInput = document.getElementById('college-id').value.trim();
             const passwordInput = document.getElementById('password').value.trim();
 
-            // *** FIX: Use normalized keys 'college-id' and 'password' ***
             const user = studentCredentials.find(
                 c => c['college-id'] === collegeIdInput && c['password'] === passwordInput
             );
@@ -141,7 +147,6 @@ async function setupTeacherLogin() {
             const collegeIdInput = document.getElementById('college-id').value.trim();
             const passwordInput = document.getElementById('password').value.trim();
 
-            // *** FIX: Use normalized keys 'college-id' and 'password' ***
             const user = teacherCredentials.find(
                 c => c['college-id'] === collegeIdInput && c['password'] === passwordInput
             );
@@ -167,7 +172,7 @@ async function setupTeacherLogin() {
 }
 
 
-// --- STUDENT DASHBOARD SETUP ---
+// --- STUDENT DASHBOARD SETUP (Attendance Graph and Webcam) ---
 function setupDashboard() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const studentName = currentUser.name || 'Student';
@@ -177,7 +182,7 @@ function setupDashboard() {
         nameDisplayEl.textContent = studentName; 
     }
 
-    // 1. Attendance Data and Graph Setup
+    // 1. Attendance Data and Graph Setup (Uses simulated data)
     const attendanceData = {
         classes: ['Physics', 'Math', 'History', 'English'],
         attended: [12, 14, 9, 15],
@@ -323,7 +328,7 @@ function markAttendance(videoElement, messageElement, markBtn) {
 }
 
 
-// --- TEACHER DASHBOARD SETUP (Student Name Fix Verified) ---
+// --- TEACHER DASHBOARD SETUP (Links to Details Page) ---
 async function setupTeacherDashboard() {
     const tableBody = document.querySelector('#attendance-table tbody');
     const teacherNameEl = document.getElementById('teacher-name');
@@ -332,26 +337,26 @@ async function setupTeacherDashboard() {
     const avgAttendanceEl = document.getElementById('avg-attendance');
 
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const teacherCourse = currentUser.course || 'Advanced Programming'; // Default course name for URL
 
     // Set Header Info
     teacherNameEl.textContent = currentUser.name || 'Faculty';
-    courseNameEl.textContent = currentUser.course || 'Unknown Course';
+    courseNameEl.textContent = teacherCourse;
 
     let studentRoster = [];
     
-    // 1. Fetch Students.csv
     try {
         const response = await fetch('students.csv');
         if (!response.ok) throw new Error(`Failed to load students.csv: ${response.statusText}`);
         const csvText = await response.text();
         
-        // 2. Augment data with simulated attendance
+        // Augment data with simulated attendance
         const totalClassesHeld = 15;
         studentRoster = parseCSV(csvText).map(student => {
-            const attendedCount = Math.floor(Math.random() * 11) + 5; // Attendance between 5 and 15
+            const attendedCount = Math.floor(Math.random() * 11) + 5; 
             return {
                 id: student['college-id'],
-                name: student.name, // Accessing the 'name' attribute from the CSV data
+                name: student.name, 
                 attended: attendedCount,
                 total: totalClassesHeld
             };
@@ -365,11 +370,9 @@ async function setupTeacherDashboard() {
         return; 
     }
 
-    // 3. Populate Table and calculate totals
     let totalAttended = 0;
     let totalClassesSum = 0;
 
-    // Clear existing table contents before populating
     if (tableBody) tableBody.innerHTML = ''; 
 
     studentRoster.forEach(student => {
@@ -384,23 +387,26 @@ async function setupTeacherDashboard() {
             <td>${student.attended}</td>
             <td>${student.total}</td>
             <td><strong>${percentage}%</strong></td>
-            <td><button class="action-button" data-student-id="${student.id}">View Details</button></td>
+            <td><button class="action-button" data-student-id="${student.id}" data-student-name="${student.name}" data-teacher-course="${teacherCourse}">View Details</button></td>
         `;
     });
     
-    // 4. Calculate and set Summary Stats
     const totalStudents = studentRoster.length;
     const avgAttendance = totalClassesSum > 0 ? ((totalAttended / totalClassesSum) * 100).toFixed(1) : 0;
 
     totalStudentsEl.textContent = totalStudents;
     avgAttendanceEl.textContent = avgAttendance;
 
-    // Add event listener for action buttons
+    // 4. Add event listener for action buttons (Redirect to new details page)
     if (tableBody) {
         tableBody.addEventListener('click', (event) => {
             if (event.target.classList.contains('action-button')) {
                 const studentId = event.target.getAttribute('data-student-id');
-                alert(`Viewing detailed attendance record for Student ID: ${studentId}.`);
+                const studentName = event.target.getAttribute('data-student-name');
+                const courseName = event.target.getAttribute('data-teacher-course');
+                
+                // Redirecting to the details page with parameters
+                window.location.href = `student-details.html?id=${studentId}&name=${encodeURIComponent(studentName)}&course=${encodeURIComponent(courseName)}`;
             }
         });
     }
@@ -410,6 +416,124 @@ async function setupTeacherDashboard() {
     if (logoutLink) {
         logoutLink.addEventListener('click', () => {
             localStorage.removeItem('currentUser');
+        });
+    }
+}
+
+
+// --- NEW FUNCTION: STUDENT DETAILS PAGE SETUP ---
+function setupStudentDetailsPage() {
+    // Helper function to parse URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const studentId = urlParams.get('id');
+    const studentName = urlParams.get('name') ? decodeURIComponent(urlParams.get('name')) : 'Unknown Student';
+    const courseName = urlParams.get('course') ? decodeURIComponent(urlParams.get('course')) : 'Subject';
+
+    // Update Header
+    document.getElementById('report-student-name').textContent = studentName;
+    document.getElementById('report-student-id').textContent = studentId;
+    document.getElementById('report-course-name').textContent = courseName;
+
+
+    // --- 1. SIMULATE DETAILED ATTENDANCE DATA ---
+    const totalDays = 20;
+    let attendedCount = 0;
+    let dailyRecords = [];
+    let dailyAttendanceStatus = []; // 1 for Present, 0 for Absent
+    let dates = [];
+
+    // Simulate 20 days of data
+    for (let i = 1; i <= totalDays; i++) {
+        const status = (Math.random() < 0.75) ? 'Present' : 'Absent'; // 75% chance of being present
+        const date = `Oct ${i}`;
+        const checkinTime = status === 'Present' ? `09:0${Math.floor(Math.random() * 6)}:10` : 'N/A';
+
+        if (status === 'Present') {
+            attendedCount++;
+            dailyAttendanceStatus.push(1);
+        } else {
+             dailyAttendanceStatus.push(0);
+        }
+        dates.push(date);
+
+        dailyRecords.push({ date, status, checkinTime });
+    }
+
+    const overallPercentage = ((attendedCount / totalDays) * 100).toFixed(1);
+
+    // --- 2. POPULATE HTML ELEMENTS ---
+    document.getElementById('course-attendance-percent-value').textContent = `${overallPercentage}%`;
+    document.querySelector('.percentage-display p').textContent = `${attendedCount} Attended / ${totalDays} Total Classes in Subject`;
+
+    const tableBody = document.querySelector('#details-table tbody');
+    tableBody.innerHTML = ''; // Clear existing content
+
+    dailyRecords.forEach(record => {
+        const row = tableBody.insertRow();
+        const statusColor = record.status === 'Present' ? 'style="color: #4CAF50; font-weight: bold;"' : 'style="color: #f95959; font-weight: bold;"';
+        row.innerHTML = `
+            <td>${record.date}</td>
+            <td ${statusColor}>${record.status}</td>
+            <td>${record.checkinTime}</td>
+        `;
+    });
+
+    // --- 3. GENERATE ATTENDANCE CHART (Line Graph) ---
+    const ctx = document.getElementById('dailyAttendanceChart');
+    if (ctx) {
+        new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Attendance Status (1=Present, 0=Absent)',
+                    data: dailyAttendanceStatus,
+                    backgroundColor: 'rgba(249, 89, 89, 0.2)',
+                    borderColor: '#f95959',
+                    borderWidth: 2,
+                    pointRadius: 5,
+                    pointBackgroundColor: dailyAttendanceStatus.map(status => status === 1 ? '#4CAF50' : '#f95959'),
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return value === 1 ? 'Present' : 'Absent';
+                            },
+                            color: '#e3e3e3'
+                        },
+                        grid: { color: 'rgba(227, 227, 227, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#e3e3e3' },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Daily Attendance Status',
+                        color: '#e3e3e3'
+                    },
+                    tooltip: {
+                         callbacks: {
+                            label: function(context) {
+                                return context.raw === 1 ? 'Present' : 'Absent';
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 }

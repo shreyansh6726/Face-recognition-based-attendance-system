@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Details | FaceAttend</title>
+    <link rel="icon" type="image/png" href="logo.png" />
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script> 
+</head>
+<body class="dashboard-body">
+
+    <header class="dashboard-header">
+        <h1>Detailed Attendance for: <span id="report-student-name">...</span> (<span id="report-student-id">...</span>)</h1>
+        <a href="teacher-dashboard.html" class="logout-link">Back to Dashboard</a>
+    </header>
+
+    <div class="dashboard-container" style="flex-direction: column;">
+        
+        <div class="card attendance-summary">
+            <h2>📈 Subject Attendance Overview (<span id="report-course-name">...</span>)</h2>
+            <div style="display: flex; gap: 30px; align-items: center;">
+                <div class="percentage-display" style="flex-shrink: 0; min-width: 200px;">
+                    <span id="course-attendance-percent-value" class="highlight-value">--%</span>
+                    <p>Attended / Total Classes in Subject</p>
+                </div>
+
+                <div class="chart-container" style="flex-grow: 1; height: 350px;">
+                    <canvas id="dailyAttendanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card student-list-card">
+            <h2>📜 Daily Attendance Record</h2>
+            <div class="table-scroll">
+                <table id="details-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Check-in Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize the details page logic
+        document.addEventListener('DOMContentLoaded', setupStudentDetailsPage);
+    </script>
+</body>
+</html>
