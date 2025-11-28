@@ -66,3 +66,5 @@ The system uses data found in the `students.csv` and `teachers.csv` files.
 * PDF generation for detailed attendance reports.
 
 ---
+<img width="1856" height="917" alt="Screenshot 2025-11-28 133546" src="https://github.com/user-attachments/assets/47ae1013-bf7d-47dc-aacb-45255e67c69e" />
+
