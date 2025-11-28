@@ -535,3 +535,15 @@ body {
 .primary-btn:hover {
     opacity: 0.9;
 }
+
+/* Styling for the new select element on Student Dashboard */
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--first-color);
+    border-radius: 4px;
+    background-color: var(--first-color); 
+    color: var(--fourth-color);
+    font-size: 1em;
+    height: 40px;
+}

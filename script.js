@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if we are on the new student-details page
     if (document.body.querySelector('#details-table')) {
         // We use the direct call in student-details.html to ensure it runs
-        // setupStudentDetailsPage(); // This is called via inline script in HTML
+        setupStudentDetailsPage(); 
         return; 
     }
     
@@ -250,11 +250,12 @@ function setupDashboard() {
         });
     }
 
-    // 2. Camera and Attendance Logic Setup (Reused)
+    // 2. Camera and Attendance Logic Setup 
     const video = document.getElementById('webcam-video');
     const timeDisplay = document.getElementById('current-time-display');
     const markBtn = document.getElementById('mark-attendance-btn');
     const message = document.getElementById('attendance-message');
+    const subjectSelect = document.getElementById('subject-select'); // NEW: Subject Select
 
     if (video) {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -284,7 +285,15 @@ function setupDashboard() {
 
         if (markBtn) {
              markBtn.addEventListener('click', () => {
-                markAttendance(video, message, markBtn);
+                // NEW: Check if subject is selected
+                if (!subjectSelect || subjectSelect.value === "") {
+                    message.textContent = "❌ Please select the subject.";
+                    message.classList.add('error');
+                    message.classList.remove('success');
+                    return; // Stop the attendance process
+                }
+
+                markAttendance(video, message, markBtn, subjectSelect.value);
             });
         }
     }
@@ -292,11 +301,16 @@ function setupDashboard() {
 
 /**
  * Simulates the attendance marking process
+ * @param {HTMLVideoElement} videoElement 
+ * @param {HTMLElement} messageElement 
+ * @param {HTMLButtonElement} markBtn 
+ * @param {string} selectedSubject The name of the subject selected.
  */
-function markAttendance(videoElement, messageElement, markBtn) {
+function markAttendance(videoElement, messageElement, markBtn, selectedSubject) {
     const now = new Date();
     const attendanceTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     
+    // Snapshot logic (kept for completeness)
     const canvas = document.getElementById('snapshot-canvas');
     if (canvas && videoElement.videoWidth > 0) {
          const context = canvas.getContext('2d');
@@ -306,7 +320,7 @@ function markAttendance(videoElement, messageElement, markBtn) {
     }
     
     messageElement.classList.remove('error', 'success');
-    messageElement.textContent = `Processing attendance at ${attendanceTime}...`;
+    messageElement.textContent = `Processing attendance for ${selectedSubject} at ${attendanceTime}...`;
     if (markBtn) markBtn.disabled = true;
 
     // Simulate Backend Call (2 seconds delay)
@@ -314,7 +328,7 @@ function markAttendance(videoElement, messageElement, markBtn) {
         const success = Math.random() < 0.8; 
 
         if (success) {
-            messageElement.textContent = `✅ Attendance Marked Successfully at ${attendanceTime}!`;
+            messageElement.textContent = `✅ Attendance Marked Successfully for ${selectedSubject} at ${attendanceTime}!`;
             messageElement.classList.add('success');
             const lastMarkedEl = document.getElementById('last-marked-time');
             if (lastMarkedEl) lastMarkedEl.textContent = attendanceTime;
@@ -337,7 +351,7 @@ async function setupTeacherDashboard() {
     const avgAttendanceEl = document.getElementById('avg-attendance');
 
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const teacherCourse = currentUser.course || 'Advanced Programming'; // Default course name for URL
+    const teacherCourse = currentUser.course || 'Advanced Programming'; 
 
     // Set Header Info
     teacherNameEl.textContent = currentUser.name || 'Faculty';
@@ -397,7 +411,7 @@ async function setupTeacherDashboard() {
     totalStudentsEl.textContent = totalStudents;
     avgAttendanceEl.textContent = avgAttendance;
 
-    // 4. Add event listener for action buttons (Redirect to new details page)
+    // Add event listener for action buttons (Redirect to new details page)
     if (tableBody) {
         tableBody.addEventListener('click', (event) => {
             if (event.target.classList.contains('action-button')) {
@@ -508,8 +522,7 @@ function setupStudentDetailsPage() {
                             stepSize: 1,
                             callback: function(value) {
                                 return value === 1 ? 'Present' : 'Absent';
-                            },
-                            color: '#e3e3e3'
+                            }
                         },
                         grid: { color: 'rgba(227, 227, 227, 0.1)' }
                     },
