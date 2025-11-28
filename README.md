@@ -1,5 +1,3 @@
----
-
 # ✨ FaceAttend: Smart Attendance System
 
 ## 🌟 Overview
